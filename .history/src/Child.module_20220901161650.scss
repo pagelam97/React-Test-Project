@@ -1,0 +1,8 @@
+$width: 30px ;
+.childStyle {
+  list-style: none;
+  li {
+    background-color: blue;
+    width: $width;
+  }
+}
