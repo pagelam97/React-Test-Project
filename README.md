@@ -2,11 +2,11 @@
 
 ###  cd 到 db.json 所在文件夹
 
-###  终端运行 json-server --watch db.json --port 8000
+###  终端运行 `json-server --watch db.json --port 8000`
 
-###  cd 到项目根目录
+###  `cd` 到项目根目录
 
-###  npm install
+###  `npm install`
 
 ###  Getting Started with Create React App
 
