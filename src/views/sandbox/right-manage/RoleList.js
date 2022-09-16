@@ -78,8 +78,9 @@ export default function RoleList() {
     }
     //勾选复选框后触发
     const handleCheck = (list) => {
-        console.log(list);
-        let newCurrentItem = { ...currentItem, rights: list }
+        console.log('currentItem---->',currentItem);
+        console.log('list.checked---->', list.checked);
+        let newCurrentItem = { ...currentItem, rights: list.checked }
         console.log(newCurrentItem);
         setCurrentItem(newCurrentItem)
     }
@@ -129,6 +130,7 @@ export default function RoleList() {
                 onCancel={handleCancel}
                 okText="确认修改"
                 cancelText="取消修改"
+              
             >
                 {
                     <div>
@@ -138,6 +140,7 @@ export default function RoleList() {
                             checkedKeys={currentItem.rights}
                             treeData={RightList}
                             onCheck={handleCheck}
+                            checkStrictly={true}
                         />
                     </div>
                 }

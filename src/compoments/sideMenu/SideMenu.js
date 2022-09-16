@@ -58,6 +58,10 @@ export default function SideMenu() {
   const selectKey = [location.pathname]
   const openKey = "/" + location.pathname.split('/')[1]
 
+  const userInfo = JSON.parse(localStorage.getItem('token'))
+  const { role } = userInfo
+  console.log(role);
+
 
   useEffect(() => {
 
@@ -79,7 +83,9 @@ export default function SideMenu() {
 
 
   const checkPagepermisson = (item) => {
-    return item.pagepermisson === 1
+   // console.log(item.key, item.pagepermisson === 1, role.rights.includes(item.key))
+    const isAuth = role.rights.includes(item.key)
+    return item.pagepermisson === 1 && isAuth
   }
 
 

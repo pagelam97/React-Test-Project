@@ -6,7 +6,9 @@ import {
 } from '@ant-design/icons';
 
 import React, { useState } from 'react'
-import { Layout, Avatar, Dropdown, Menu, Space } from 'antd';
+import { Layout, Avatar, Dropdown, Menu, Space, Button } from 'antd';
+import { useHistory } from 'react-router-dom';
+import { warning } from '../Message/Message';
 const { Header } = Layout;
 
 
@@ -15,6 +17,18 @@ export default function TopHeader() {
 
 
   const [collapsed, setCollapsed] = useState(false);
+  const history = useHistory()
+
+  const userInfo = JSON.parse(localStorage.getItem('token'))
+  const { username, role } = userInfo
+
+  const handleLoginOutBtn = (e) => {
+    e.preventDefault()
+    console.log(history);
+    localStorage.clear()
+    history.replace('/login')
+    warning('已退出denglv')
+  }
 
 
   const menu = (
@@ -23,8 +37,8 @@ export default function TopHeader() {
         {
           key: '1',
           label: (
-            <a target="_blank" rel="noopener noreferrer" href="#">
-              管理员admin
+            <a target="_blank" rel="noopener noreferrer" >
+              {role.roleName}
             </a>
           ),
         },
@@ -32,7 +46,7 @@ export default function TopHeader() {
         {
           key: '2',
           danger: true,
-          label: 'a danger item',
+          label: <a onClick={handleLoginOutBtn}>退出登录</a>,
         },
       ]}
     />
@@ -55,28 +69,16 @@ export default function TopHeader() {
 
 
 
-
-
-
-
-
-
       <div style={{ float: 'right' }}>
-        <span>
-          欢迎admin回来
-        </span>
+        <span>欢迎回来,</span><span style={{ color: '#448ff8' }}> {username}</span>
         <span>
           <Dropdown overlay={menu}>
             <a onClick={e => e.preventDefault()}>
-            <Avatar size={50} icon={<UserOutlined />} />
+              <Avatar size={50} icon={<UserOutlined />} />
             </a>
           </Dropdown>
         </span>
       </div>
-
-
-
-
 
 
     </Header>

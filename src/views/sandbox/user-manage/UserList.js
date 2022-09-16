@@ -3,10 +3,10 @@ import React, { useEffect, useRef, useState } from 'react'
 
 import { Space, Table, Button, Modal, Switch } from 'antd';
 import { DeleteOutlined, EditOutlined, UserAddOutlined, ExclamationCircleOutlined } from '@ant-design/icons';
-import axios from 'axios';
 import { error, success, warning } from '../../../compoments/Message/Message';
 import UserFrom from '../../../compoments/user-manage/UserFrom'
-
+import UpdataUserFrom from '../../../compoments/user-manage/UpdataUserFrom';
+import axios from 'axios';
 const { confirm } = Modal
 
 export default function UserList() {
@@ -18,14 +18,51 @@ export default function UserList() {
     const [isAddUserModalShow, setIsAddUserModalShow] = useState(false)
     const [isUpdataModalShow, setIsUpdataModalShow] = useState(false)
     const [currentUpdataItem, setcurrentUpdataItem] = useState({})
+    const currentUserInfo = JSON.parse(localStorage.getItem('token'))
+
+    const currentUserId = currentUserInfo.id
+    const currentUserRole = currentUserInfo.role
+    const currentUserRegion = currentUserInfo.region
+    console.log(' currentUserId--->', currentUserId);
+    console.log(' currentUserRole--->', currentUserRole);
+
+    console.log('currentUserInfo---->', currentUserInfo);
+
+    const tableListFilter = (list) => {
+        console.log(list);
+        let tableList;
+        if (currentUserRole.roleType === 1) {
+            console.log('超级管理员');
+            tableList = list.filter((item) => {
+                return item.id === currentUserId || item.role.roleType !== 1
+            })
+        } else if (currentUserRole.roleType === 2) {
+            console.log('区域管理员');
+            tableList = list.filter((item) => {
+                return (item.id === currentUserId) || ((item.region === currentUserRegion) && (item.role.roleType === 3))
+            })
+        } else {
+            console.log('区域编辑');
+            tableList = list.filter((item) => {
+                return item.id === currentUserId
+            })
+        }
+
+        return tableList
+
+    }
+
+
 
     useEffect(() => {
         axios({
             method: 'get',
             url: 'http://localhost:8000/users?_expand=role'
         }).then((res) => {
-            setDataSource(res.data)
-            console.log(res.data);
+            console.log('userList--->', res.data);
+            let tableList = tableListFilter(res.data)
+            setDataSource(tableList)
+
         })
     }, [])
 
@@ -98,7 +135,8 @@ export default function UserList() {
                         url: 'http://localhost:8000/users?_expand=role'
                     }).then((res) => {
                         success('删除成功')
-                        setDataSource(res.data)
+                        let tableList = tableListFilter(res.data)
+                        setDataSource(tableList)
                     }).catch((res) => {
                         error('请刷新页面')
                     })
@@ -138,7 +176,9 @@ export default function UserList() {
                     method: 'get',
                     url: 'http://localhost:8000/users?_expand=role'
                 }).then((res) => {
-                    setDataSource(res.data)
+
+                    let tableList = tableListFilter(res.data)
+                    setDataSource(tableList)
                     console.log(res.data);
                     success('修改成功')
                 })
@@ -180,7 +220,8 @@ export default function UserList() {
                     url: 'http://localhost:8000/users?_expand=role'
                 }).then((res) => {
                     success('添加成功')
-                    setDataSource(res.data)
+                    let tableList = tableListFilter(res.data)
+                    setDataSource(tableList)
                     hideAddModal()
                     cleanForm()
                 }).catch((res) => {
@@ -222,7 +263,8 @@ export default function UserList() {
                     url: 'http://localhost:8000/users?_expand=role'
                 }).then((res) => {
                     success('添加成功')
-                    setDataSource(res.data)
+                    let tableList = tableListFilter(res.data)
+                    setDataSource(tableList)
                     hideUpdataModal()
                 }).catch((res) => {
                     error('更新失败')
@@ -242,12 +284,12 @@ export default function UserList() {
 
     return (
         <>
-            <div style={{ margin: '0px 0px 10px 0px' }}>
+            {currentUserRole.roleType === 3 ? null : <div style={{ margin: '0px 0px 10px 0px' }}>
                 <Button type="primary" icon={<UserAddOutlined />} onClick={() => { handleAddUserBtn() }}>
                     新增用户
                 </Button>
-            </div>
-            <Table columns={columns} dataSource={dataSource} pagination={{ pageSize: 10 }} rowKey={(item) => {
+            </div>}
+            <Table columns={columns} dataSource={dataSource} pagination={{ pageSize: 7 }} rowKey={(item) => {
                 return item.id + '-' + item.roleType
             }} />
             <Modal
@@ -258,7 +300,7 @@ export default function UserList() {
                 okText="增加用户"
                 cancelText="取消增加"
             >
-                <UserFrom ref={addFormRef} />
+                <UserFrom ref={addFormRef} currentUserInfo={currentUserInfo}/>
             </Modal>
 
             <Modal
@@ -269,7 +311,7 @@ export default function UserList() {
                 okText="确认更新"
                 cancelText="取消更新"
             >
-                <UserFrom ref={updataFormRef} currentItem={currentUpdataItem} />
+                <UpdataUserFrom ref={updataFormRef} currentItem={currentUpdataItem} currentUserInfo={currentUserInfo} />
             </Modal>
         </>
     )

@@ -1,19 +1,21 @@
 import React, { useEffect, useState, forwardRef } from 'react'
-import {  Form, Input, Select } from 'antd';
+import { Button, Checkbox, Form, Input, Select } from 'antd';
 import axios from 'axios';
 
 
-
 const { Option } = Select;
-const UserFrom = forwardRef(
+const UpdataUserFrom = forwardRef(
     (props, ref) => {
+
+        console.log(props.currentItem);
+        console.log(props.currentUserInfo);
+
         const { currentUserInfo } = props
-        console.log(currentUserInfo);
 
         const [roleList, setRoleList] = useState([])
         const [region, setRegion] = useState([])
         const [isRegionDisable, setIsRegionDisable] = useState(false)
-        console.log(isRegionDisable);
+        const [isRoleDisable, setIsRoleDisable] = useState(false)
 
         useEffect(() => {
             axios({
@@ -33,21 +35,34 @@ const UserFrom = forwardRef(
             })
         }, [])
 
+        useEffect(() => {
+            // console.log(props.currentItem);
+            ref.current.setFieldsValue({ ...props.currentItem })
+            props.currentItem.role.roleType === 1 ? setIsRegionDisable(true) : setIsRegionDisable(false)
+
+            if (currentUserInfo.role.roleType === 2) {
+                setIsRegionDisable(true)
+            } else if (currentUserInfo.role.roleType === 3) {
+                setIsRegionDisable(true)
+                setIsRoleDisable(true)
+            }
+        }, [props])
+
 
         const handleRoleTypeChange = (value, item) => {
             console.log(value);
             console.log(item);
-            if (value === 1) {
-                console.log('jihlai1');
-                setIsRegionDisable(true)
-                ref.current.setFieldValue('region', '')
-            } else if (value !== 1 && isRegionDisable) {
-                console.log('jihlai2');
-                setIsRegionDisable(false)
+
+            if (currentUserInfo.role.roleType === 1) {
+                if (value === 1) {
+                    setIsRegionDisable(true)
+                    ref.current.setFieldValue('region', '')
+                } else {
+                    setIsRegionDisable(false)
+                }
             }
+
         }
-
-
 
         return (
             <Form
@@ -100,22 +115,16 @@ const UserFrom = forwardRef(
                     <Select disabled={isRegionDisable}>
                         {
                             region.map((item) => {
-                                console.log('item--->', item);
-                                let isDisabled = false
-                                if (currentUserInfo.role.roleType === 2) {
-                                    if (item.value !== currentUserInfo.region) {
-                                        isDisabled = true
-                                    }
-                                }
-
                                 return (
-                                    <Option value={item.value} key={item.id} disabled={isDisabled}>{item.value}</Option>
+                                    <Option value={item.value} key={item.id}>{item.value}</Option>
                                 )
                             })
 
                         }
                     </Select>
                 </Form.Item>
+
+
 
                 <Form.Item
                     label="角色"
@@ -127,17 +136,22 @@ const UserFrom = forwardRef(
                         },
                     ]}
                 >
-                    <Select onChange={(value, item) => {
-                        handleRoleTypeChange(value, item)
-                    }}>
+                    <Select
+                        disabled={isRoleDisable}
+                        onChange={(value, item) => {
+                            handleRoleTypeChange(value, item)
+                        }}>
                         {
                             roleList.map((item) => {
-                                let isDisabled = false
+                                console.log(item);
+                                let isDisable = false
+
                                 if (currentUserInfo.role.roleType === 2 && item.roleType === 1) {
-                                    isDisabled = true
+                                    isDisable = true
                                 }
+
                                 return (
-                                    <Option value={item.roleType} key={item.id} disabled={isDisabled}>{item.roleName}</Option>
+                                    <Option value={item.roleType} key={item.id} disabled={isDisable}>{item.roleName}</Option>
                                 )
                             })
 
@@ -153,4 +167,4 @@ const UserFrom = forwardRef(
 
 
 
-export default UserFrom
+export default UpdataUserFrom

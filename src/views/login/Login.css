@@ -1,0 +1,26 @@
+.login-page{
+    height: 100%;
+    width: 100%;
+    background-color: #232122;
+}
+.login-wapper {
+    height: 300px;
+    width: 500px;
+    background-color: rgba(0, 0, 0, 0.5);
+    position: fixed;
+    left: 50%;
+    top: 30%;
+    transform: translate(-50%, -50%);
+    min-width: 500px;
+    color: #ffffff;
+}
+
+.login-title{
+margin: 25px 0px 25px 0px;
+text-align: center;
+font-size: 30px;
+}
+
+.login-form{
+        color: #ffffff;
+}
