@@ -13,6 +13,7 @@ export default function IndexRouter() {
             <Switch>
                 <Route path='/login' component={Login} />
                 <Route path='/' render={(props) => {
+                    console.log(props);
                     const Element = localStorage.getItem('token') ? <NewsSandBox {...props} /> : <Redirect from='/' to='/login' />
                     return Element
                 }} />
