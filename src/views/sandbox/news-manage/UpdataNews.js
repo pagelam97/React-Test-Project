@@ -14,10 +14,14 @@ console.log(elementStyle);
 const { Step } = Steps;
 const { Option } = Select
 
-export default function AddNews() {
+export default function UpdataNews(props) {
+
+    console.log(props.match.params.id);
+
+    const [newsInfo, setNewsInfo] = useState({})
 
     const [currentStep, setCurrentStep] = useState(0)
-    const [categories, setcategories] = useState([])
+    const [categories, setcategories] = useState('')
     const [editorContent, setEditorContent] = useState('')
     const [newsTitle, setNewsTitle] = useState('')
     const [newsCategoriesId, setNewsCategoriesId] = useState(1)
@@ -26,7 +30,26 @@ export default function AddNews() {
     const history = useHistory()
 
 
+    useEffect(() => {
+        axios({
+            method: 'get',
+            url: `http://localhost:8000/news?id=${props.match.params.id}&_expand=role&_expand=category`
+        }).then(res => {
+            console.log(...res.data);
+            setNewsInfo(...res.data)
+        })
 
+    }, [props.match.params.id])
+
+
+
+    useEffect(() => {
+        if (Object.keys(newsInfo).length === 0) return
+        console.log(newsInfo);
+
+        titleForm.current.setFieldValue('title', newsInfo.title)
+        titleForm.current.setFieldValue('categoryId', newsInfo.categoryId)
+    }, [newsInfo])
 
     useEffect(() => {
         axios({
@@ -41,7 +64,6 @@ export default function AddNews() {
 
     const currentUserInfo = JSON.parse(localStorage.getItem('token'))
     console.log(currentUserInfo);
-
 
     const handleNextBtn = () => {
         console.log('dianle');
@@ -60,6 +82,7 @@ export default function AddNews() {
             //setCurrentStep(currentStep + 1)
 
             if (editorContent === '' || editorContent.trim() === '<p></p>') {
+                console.log(editorContent);
                 error('新闻内容不能为空')
             } else {
                 setCurrentStep(currentStep + 1)
@@ -71,39 +94,41 @@ export default function AddNews() {
         setCurrentStep(currentStep - 1)
     }
 
+
     const handlePushBtn = (auditState) => {
 
         console.log(auditState);
 
         let newPushNews = {
+            //  ...newsInfo,
             "title": newsTitle,
             "categoryId": newsCategoriesId,
-            "content": editorContent,
-            "region": currentUserInfo.region ? currentUserInfo.region : "全球",
-            "author": currentUserInfo.username,
-            "roleId": currentUserInfo.roleId,
-            "auditState": auditState,
-            "publishState": 0,
-            "createTime": Date.now(),
-            "star": 0,
-            "view": 0,
+            "auditState": auditState
+            // "title": newsTitle,
+            // "categoryId": newsCategoriesId,
+            // "content": editorContent,
+            // "region": currentUserInfo.region ? currentUserInfo.region : "全球",
+            // "author": currentUserInfo.username,
+            // "roleId": currentUserInfo.roleId,
+            // "auditState": auditState,
+            // "publishState": 0,
+            // "createTime": Date.now(),
+            // "star": 0,
+            // "view": 0,
         }
         axios({
-            method: 'post',
-            url: 'http://localhost:8000/news',
+            method: 'patch',
+            url: `http://localhost:8000/news/${newsInfo.id}`,
             data: newPushNews
         }).then(res => {
             let pushPath = auditState === 0 ? "/news-manage/draft" : "/audit-manage/list"
-            let alterMessage = auditState === 0 ? '提交成功,请在草稿箱中查看' : '提交成功,请在审核列表中查看'
+            let alterMessage = auditState === 0 ? '修改成功,请在草稿箱中查看' : '提交成功,请在审核列表中查看'
             history.push(pushPath)
             success(alterMessage)
         }).catch(res => {
             console.log(res);
-            error('新增新闻失败')
+            error('修改新闻失败')
         })
-
-
-
 
     }
 
@@ -118,8 +143,8 @@ export default function AddNews() {
             <PageHeader
                 className="site-page-header"
                 // onBack={() => window.history.back()}
-                title="撰写新闻"
-                subTitle="新建一条文章"
+                title="更新新闻"
+                subTitle="更新当前文章"
             />
 
 
@@ -155,7 +180,7 @@ export default function AddNews() {
                             <Select
                             //   onChange={handleChange}
                             >
-                                {categories.map((item) => {
+                                {categories && categories.map((item) => {
                                     return <Option value={item.id} key={item.id}>{item.value}</Option>
                                 })}
                             </Select>
@@ -164,20 +189,27 @@ export default function AddNews() {
                 </div>
 
                 <div className={currentStep === 1 ? '' : elementStyle.elementHidden}>
-                    <DraftEditor getEditorContext={getEditorContext} />
+                    <DraftEditor getEditorContext={getEditorContext} content={newsInfo.content} />
                 </div>
 
                 <div className={currentStep === 2 ? '' : elementStyle.elementHidden}>
-                    <Descriptions title="新闻概览" column={3} bordered>
+                    {categories && <Descriptions title=" " column={3} bordered style={{ marginTop: '20px' }}>
 
-                        <Descriptions.Item label="新闻作者" >{currentUserInfo.username}</Descriptions.Item>
-                        <Descriptions.Item label="发布区域">{currentUserInfo.region === '' ? '全球' : currentUserInfo.region}</Descriptions.Item>
-                        <Descriptions.Item label="新闻类型" >{categories.length === 0 ? '' : categories[newsCategoriesId - 1].value}</Descriptions.Item>
+                        <Descriptions.Item label="新闻作者" >{newsInfo.author}</Descriptions.Item>
+                        <Descriptions.Item label="发布区域">{newsInfo.region === '' ? '全球' : newsInfo.region}</Descriptions.Item>
+                        <Descriptions.Item label="新闻类型" >{categories[newsCategoriesId - 1].value}</Descriptions.Item>
+
+
+                        {/* <Descriptions.Item label="评论数量" >{newsInfo.username}</Descriptions.Item> */}
+
                         <Descriptions.Item label="新闻标题" span={3}>{newsTitle}</Descriptions.Item>
                         <Descriptions.Item label="新闻内容" span={3}>
-                            {editorContent}
+                            {<div dangerouslySetInnerHTML={{
+                                __html: editorContent
+                            }}>
+                            </div>}
                         </Descriptions.Item>
-                    </Descriptions>
+                    </Descriptions>}
                 </div>
             </div>
 

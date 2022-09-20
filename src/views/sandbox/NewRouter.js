@@ -13,6 +13,8 @@ import AuditNewsList from './audit-manage/AuditNewsList'
 import AddNews from './news-manage/AddNews'
 import CategoryNews from './news-manage/CategoryNews'
 import DraftNews from './news-manage/DraftNews'
+import PreviewNews from './news-manage/PreviewNews'
+import UpdataNews from './news-manage/UpdataNews'
 
 import UnpublishedNews from './publish-manage/UnpublishedNews'
 import PublishedNews from './publish-manage/PublishedNews'
@@ -31,12 +33,14 @@ const PathMapToComponent = {
     '/right-manage/right/list': RightList,
     '/news-manage/add': AddNews,
     "/news-manage/draft": DraftNews,
+    "/news-manage/preview/:id": PreviewNews,
+    "/news-manage/update/:id": UpdataNews,
     '/news-manage/category': CategoryNews,
     "/audit-manage/audit": AuditNews,
     "/audit-manage/list": AuditNewsList,
     "/publish-manage/unpublished": UnpublishedNews,
     "/publish-manage/published": PublishedNews,
-    "/publish-manage/sunset": SunsetNews
+    "/publish-manage/sunset": SunsetNews,
 }
 
 
@@ -73,6 +77,10 @@ export default function NewRoute(props) {
         return currentUserRole.rights.includes(item.key)
     }
 
+    const checkRoutepermisson = (item) => {
+        return item.routepermisson === 1
+    }
+
 
     return (
 
@@ -80,7 +88,7 @@ export default function NewRoute(props) {
 
             {backRouteList.map((item) => {
 
-                let isRenderRouter = (checkPagepermisson(item) && isCurrentAuth(item))
+                let isRenderRouter = ((checkPagepermisson(item) || checkRoutepermisson(item)) && isCurrentAuth(item))
 
                 return isRenderRouter ? <Route path={item.key} key={item.id} component={PathMapToComponent[item.key] || NotFound} exact /> : null
             })}
