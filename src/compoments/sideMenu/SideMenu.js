@@ -18,12 +18,15 @@ import {
   ContainerOutlined
 } from '@ant-design/icons';
 
+import newspaper from '../../static/newspaper.png'
+
 
 
 import React, { useEffect, useState } from 'react'
 import { useHistory, useLocation } from 'react-router-dom';
 import { Layout, Menu } from 'antd';
 import axios from 'axios';
+import { connect } from 'react-redux';
 
 const { Sider } = Layout;
 
@@ -49,9 +52,9 @@ const mapPathToIcon = {
 }
 
 
-export default function SideMenu() {
+function SideMenu(props) {
 
-  const [collapsed, setCollapsed] = useState(false)
+  // const [collapsed, setCollapsed] = useState(false)
   const [menuList, setMenuList] = useState([])
   const history = useHistory()
   const location = useLocation()
@@ -83,7 +86,7 @@ export default function SideMenu() {
 
 
   const checkPagepermisson = (item) => {
-   // console.log(item.key, item.pagepermisson === 1, role.rights.includes(item.key))
+    // console.log(item.key, item.pagepermisson === 1, role.rights.includes(item.key))
     const isAuth = role.rights.includes(item.key)
     return item.pagepermisson === 1 && isAuth
   }
@@ -115,11 +118,17 @@ export default function SideMenu() {
   return (
 
 
-    <Sider trigger={null} collapsible collapsed={collapsed}>
+    <Sider trigger={null} collapsible collapsed={props.isCollapsed}>
       <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-        <div className="logo" style={{ height: '64px', textAlign: 'center', fontSize: '30px', color: '#ffffff' }} >
-          新闻发布系统
-        </div>
+        {props.isCollapsed ?
+          <div style={{ height: '64px', textAlign: 'center', fontSize: '30px', color: '#ffffff' }}>
+            <img style={{height:'80%' ,marginTop:'5px'}} src={newspaper} />
+          </div>
+          :
+          <div className="logo" style={{ height: '64px', textAlign: 'center', fontSize: '30px', color: '#ffffff' }} >
+            新闻发布系统
+          </div>
+        }
         <div style={{ flex: 1, overflow: 'auto' }}>
           <Menu
             theme="dark"
@@ -142,3 +151,26 @@ export default function SideMenu() {
 
   )
 }
+
+const mapStoreStateToProps = (State) => {
+  console.log(State);
+  return {
+    isCollapsed: State.sideMenuCollapsedReducer.isCollapsed
+  }
+}
+
+const mapDispatchToProps = {
+  // console.log(State)
+
+  changeIsCollapsed() {
+    return {
+      type: 'change-Collapsed'
+    }
+  }
+
+}
+
+
+
+
+export default connect(mapStoreStateToProps, mapDispatchToProps)(SideMenu) 
