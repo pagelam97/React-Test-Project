@@ -9,7 +9,6 @@ import DraftEditor from '../../../compoments/RichTextEditor/DraftEditor';
 
 import elementStyle from './addNews.module.css'
 import { useHistory } from 'react-router-dom';
-console.log(elementStyle);
 
 const { Step } = Steps;
 const { Option } = Select

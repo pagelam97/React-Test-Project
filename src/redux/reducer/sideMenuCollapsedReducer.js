@@ -1,6 +1,5 @@
 const sideMenuCollapsedReducer = (preState = { isCollapsed: false }, action = {}) => {
 
-    console.log(action);
 
     switch (action.type) {
         case 'change-Collapsed': {

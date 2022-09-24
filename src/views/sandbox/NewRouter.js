@@ -24,6 +24,9 @@ import './NewsSandBox.css'
 
 import axios from 'axios';
 
+import { Spin } from 'antd'
+import { connect } from 'react-redux';
+
 
 
 const PathMapToComponent = {
@@ -45,15 +48,14 @@ const PathMapToComponent = {
 
 
 
-export default function NewRoute(props) {
+function NewRoute(props) {
 
     const [backRouteList, setBackRouteList] = useState([])
 
     const currentUserInfo = JSON.parse(localStorage.getItem('token'))
     const currentUserRole = currentUserInfo.role
 
-    console.log('currentUserInfo--->', currentUserInfo);
-    console.log('currentUserRole--->', currentUserRole);
+
 
 
     useEffect(() => {
@@ -61,9 +63,7 @@ export default function NewRoute(props) {
             axios.get('http://localhost:8000/rights'),
             axios.get('http://localhost:8000/children')
         ]).then(res => {
-            console.log(res);
             let list = [...res[0].data, ...res[1].data]
-            console.log(list);
             setBackRouteList(list)
         })
 
@@ -84,20 +84,32 @@ export default function NewRoute(props) {
 
     return (
 
-        <Switch>
+        <Spin tip={'加载中'} spinning={props.isLoading}>
 
-            {backRouteList.map((item) => {
 
-                let isRenderRouter = ((checkPagepermisson(item) || checkRoutepermisson(item)) && isCurrentAuth(item))
 
-                return isRenderRouter ? <Route path={item.key} key={item.id} component={PathMapToComponent[item.key] || NotFound} exact /> : null
-            })}
+            <Switch>
 
-            <Redirect from={'/'} to={'/home'} exact />
-            {backRouteList.length > 0 ? <Route path={'*'} component={NotFound} /> : null}
-        </Switch>
+                {backRouteList.map((item) => {
 
+                    let isRenderRouter = ((checkPagepermisson(item) || checkRoutepermisson(item)) && isCurrentAuth(item))
+
+                    return isRenderRouter ? <Route path={item.key} key={item.id} component={PathMapToComponent[item.key] || NotFound} exact /> : null
+                })}
+
+                <Redirect from={'/'} to={'/home'} exact />
+                {backRouteList.length > 0 ? <Route path={'*'} component={NotFound} /> : null}
+            </Switch>
+        </Spin>
 
     )
 }
 
+const mapStoreStateToProps = (State) => {
+    return {
+        isLoading: State.lodaingStateReducer.isLoading
+    }
+}
+
+
+export default connect(mapStoreStateToProps)(NewRoute)

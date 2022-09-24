@@ -14,10 +14,8 @@ const { Header } = Layout;
 
 
 function TopHeader(props) {
-    console.log('topHeader--->props--->', props);
 
 
-   // const [collapsed, setCollapsed] = useState(false);
     const history = useHistory()
 
     const userInfo = JSON.parse(localStorage.getItem('token'))
@@ -65,7 +63,7 @@ function TopHeader(props) {
         >
             {React.createElement(props.isCollapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
                 className: 'trigger',
-               onClick: () => props.changeIsCollapsed(),
+                onClick: () => props.changeIsCollapsed(),
             })}
 
 
@@ -84,18 +82,18 @@ function TopHeader(props) {
 
         </Header>
     )
+               
 }
 
 
 const mapStoreStateToProps = (State) => {
-    console.log(State);
     return {
         isCollapsed: State.sideMenuCollapsedReducer.isCollapsed
     }
 }
 
 const mapDispatchToProps = {
-    // console.log(State)
+
 
     changeIsCollapsed() {
         return {

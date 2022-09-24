@@ -7,7 +7,6 @@ import { useHistory } from 'react-router-dom';
 
 export default function NewPublish(props) {
 
-    console.log(props);
     const history = useHistory(null)
 
 
